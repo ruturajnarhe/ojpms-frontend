@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
@@ -6,61 +6,34 @@ function Jobs() {
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState([]);
-
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [jobType, setJobType] = useState("");
-
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [applications, setApplications] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [applyingJobId, setApplyingJobId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("OPEN");
 
-  const [appliedJobIds, setAppliedJobIds] = useState([]);
-
-  // =========================================
-  // CHECK LOGIN + LOAD DATA
-  // =========================================
+  /* =========================================
+       LOAD JOBS
+    ========================================= */
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if (!storedUser) {
-      navigate("/login");
-
-      return;
-    }
-
-    const user = JSON.parse(storedUser);
-
-    // Only JOB_SEEKER can access this page
-
-    if (user.role !== "JOB_SEEKER") {
-      navigate("/recruiter-dashboard");
-
-      return;
-    }
-
     loadJobs();
-
-    loadMyApplications(user.id);
-  }, [navigate]);
-
-  // =========================================
-  // LOAD ALL JOBS
-  // =========================================
+  }, []);
 
   const loadJobs = async () => {
     try {
       setLoading(true);
-
       setError("");
 
       const response = await api.get("/jobs");
 
       setJobs(response.data);
+
+      await loadApplications();
     } catch (error) {
       console.error(error);
 
@@ -70,235 +43,232 @@ function Jobs() {
     }
   };
 
-  // =========================================
-  // LOAD MY APPLICATIONS
-  // =========================================
+  /* =========================================
+       LOAD CURRENT USER APPLICATIONS
+    ========================================= */
 
-  const loadMyApplications = async (applicantId) => {
+  const loadApplications = async () => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      setApplications([]);
+      return;
+    }
+
     try {
-      const response = await api.get(`/applications/applicant/${applicantId}`);
+      const user = JSON.parse(storedUser);
 
-      const applications = response.data;
+      if (user.role !== "JOB_SEEKER") {
+        setApplications([]);
+        return;
+      }
 
-      const ids = applications
-        .map((application) => application.job?.id)
-        .filter((id) => id !== undefined);
+      const response = await api.get(`/applications/applicant/${user.id}`);
 
-      setAppliedJobIds(ids);
+      setApplications(response.data);
     } catch (error) {
       console.error("Unable to load applications:", error);
+
+      setApplications([]);
     }
   };
 
-  // =========================================
-  // SEARCH JOBS
-  // =========================================
+  /* =========================================
+       CHECK APPLICATION
+    ========================================= */
 
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
+  const hasApplied = (jobId) => {
+    return applications.some((application) => application.job?.id === jobId);
+  };
 
-      setError("");
+  /* =========================================
+       FILTER OPTIONS
+    ========================================= */
 
-      setMessage("");
+  const locations = useMemo(() => {
+    return [...new Set(jobs.map((job) => job.location).filter(Boolean))].sort();
+  }, [jobs]);
 
-      let response;
+  const jobTypes = useMemo(() => {
+    return [...new Set(jobs.map((job) => job.jobType).filter(Boolean))].sort();
+  }, [jobs]);
 
-      // Search by title
+  /* =========================================
+       FILTER JOBS
+    ========================================= */
 
-      if (title.trim() !== "") {
-        response = await api.get("/jobs/search/title", {
-          params: {
-            title: title.trim(),
-          },
-        });
-      }
+  const filteredJobs = useMemo(() => {
+    const searchValue = search.trim().toLowerCase();
 
-      // Search by location
-      else if (location.trim() !== "") {
-        response = await api.get("/jobs/search/location", {
-          params: {
-            location: location.trim(),
-          },
-        });
-      }
+    return jobs.filter((job) => {
+      const title = job.title?.toLowerCase() || "";
 
-      // Search by job type
-      else if (jobType.trim() !== "") {
-        response = await api.get("/jobs/search/type", {
-          params: {
-            jobType: jobType,
-          },
-        });
-      }
+      const recruiter = job.recruiter?.name?.toLowerCase() || "";
 
-      // No search criteria
-      else {
-        response = await api.get("/jobs");
-      }
+      const location = job.location?.toLowerCase() || "";
 
-      setJobs(response.data);
-    } catch (error) {
-      console.error(error);
+      const jobType = job.jobType?.toLowerCase() || "";
 
-      setError("Unable to search jobs.");
-    } finally {
-      setLoading(false);
+      const matchesSearch =
+        !searchValue ||
+        title.includes(searchValue) ||
+        recruiter.includes(searchValue) ||
+        location.includes(searchValue);
+
+      const matchesLocation =
+        !locationFilter || job.location === locationFilter;
+
+      const matchesJobType = !jobTypeFilter || job.jobType === jobTypeFilter;
+
+      const matchesStatus =
+        !statusFilter || job.status?.toUpperCase() === statusFilter;
+
+      return (
+        matchesSearch && matchesLocation && matchesJobType && matchesStatus
+      );
+    });
+  }, [jobs, search, locationFilter, jobTypeFilter, statusFilter]);
+
+  /* =========================================
+       CLEAR FILTERS
+    ========================================= */
+
+  const clearFilters = () => {
+    setSearch("");
+    setLocationFilter("");
+    setJobTypeFilter("");
+    setStatusFilter("OPEN");
+  };
+
+  /* =========================================
+       STATUS CLASS
+    ========================================= */
+
+  const getStatusClass = (status) => {
+    if (status?.toUpperCase() === "OPEN") {
+      return "status status-open";
     }
+
+    return "status status-closed";
   };
 
-  // =========================================
-  // CLEAR SEARCH
-  // =========================================
+  /* =========================================
+       APPLY BUTTON
+    ========================================= */
 
-  const handleClearSearch = () => {
-    setTitle("");
-
-    setLocation("");
-
-    setJobType("");
-
-    setMessage("");
-
-    setError("");
-
-    loadJobs();
-  };
-
-  // =========================================
-  // APPLY FOR JOB
-  // =========================================
-
-  const handleApply = async (jobId) => {
+  const handleApply = (job) => {
     const storedUser = localStorage.getItem("user");
 
     if (!storedUser) {
       navigate("/login");
-
       return;
     }
 
     const user = JSON.parse(storedUser);
 
-    // Prevent duplicate application
-
-    if (appliedJobIds.includes(jobId)) {
-      setMessage("You have already applied for this job.");
-
+    if (user.role !== "JOB_SEEKER") {
       return;
     }
 
-    try {
-      setApplyingJobId(jobId);
-
-      setMessage("");
-
-      setError("");
-
-      const application = {
-        job: {
-          id: jobId,
-        },
-
-        applicant: {
-          id: user.id,
-        },
-      };
-
-      await api.post("/applications", application);
-
-      // Add job to applied list
-
-      setAppliedJobIds((previous) => [...previous, jobId]);
-
-      setMessage("Job application submitted successfully!");
-    } catch (error) {
-      console.error(error);
-
-      setError(
-        error.response?.data?.message || "Unable to apply for this job.",
-      );
-    } finally {
-      setApplyingJobId(null);
-    }
+    navigate(`/job/${job.id}`);
   };
 
   return (
     <div className="page-container">
       {/* =========================================
-                PAGE TITLE
+                PAGE HEADER
             ========================================= */}
 
-      <h1 className="page-title">Find Your Next Job</h1>
+      <div className="jobs-page-header">
+        <div>
+          <h1 className="page-title">Find Your Next Job</h1>
+
+          <p className="jobs-page-subtitle">
+            Explore job opportunities and find the right career for you.
+          </p>
+        </div>
+
+        <div className="jobs-total-count">{filteredJobs.length} Jobs</div>
+      </div>
 
       {/* =========================================
-                SEARCH SECTION
+                SEARCH + FILTERS
             ========================================= */}
 
-      <div className="search-container">
-        <h3>Search Jobs</h3>
+      <div className="jobs-filter-panel">
+        {/* SEARCH */}
 
-        <div className="search-row">
-          {/* TITLE */}
+        <div className="jobs-search-wrapper">
+          <span className="jobs-search-icon">🔍</span>
 
           <input
-            className="search-input"
             type="text"
-            placeholder="Search by job title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            className="jobs-search-input"
+            placeholder="Search by job title, company or location..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
 
+        {/* FILTER ROW */}
+
+        <div className="jobs-filter-row">
           {/* LOCATION */}
 
-          <input
-            className="search-input"
-            type="text"
-            placeholder="Search by location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
+          <select
+            className="jobs-filter-select"
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          >
+            <option value="">All Locations</option>
+
+            {locations.map((location) => (
+              <option key={location} value={location}>
+                {location}
+              </option>
+            ))}
+          </select>
 
           {/* JOB TYPE */}
 
           <select
-            className="search-input"
-            value={jobType}
-            onChange={(e) => setJobType(e.target.value)}
+            className="jobs-filter-select"
+            value={jobTypeFilter}
+            onChange={(e) => setJobTypeFilter(e.target.value)}
           >
             <option value="">All Job Types</option>
 
-            <option value="FULL_TIME">Full Time</option>
-
-            <option value="PART_TIME">Part Time</option>
-
-            <option value="INTERNSHIP">Internship</option>
-
-            <option value="CONTRACT">Contract</option>
+            {jobTypes.map((jobType) => (
+              <option key={jobType} value={jobType}>
+                {jobType}
+              </option>
+            ))}
           </select>
 
-          {/* SEARCH BUTTON */}
+          {/* STATUS */}
 
-          <button className="btn btn-primary" onClick={handleSearch}>
-            Search
-          </button>
+          <select
+            className="jobs-filter-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="OPEN">Open Jobs</option>
 
-          {/* CLEAR BUTTON */}
+            <option value="CLOSED">Closed Jobs</option>
 
-          <button className="btn btn-secondary" onClick={handleClearSearch}>
-            Clear
+            <option value="">All Status</option>
+          </select>
+
+          {/* CLEAR */}
+
+          <button className="jobs-clear-button" onClick={clearFilters}>
+            Clear Filters
           </button>
         </div>
       </div>
 
       {/* =========================================
-                SUCCESS MESSAGE
-            ========================================= */}
-
-      {message && <div className="success-message">{message}</div>}
-
-      {/* =========================================
-                ERROR MESSAGE
+                ERROR
             ========================================= */}
 
       {error && <div className="error-message">{error}</div>}
@@ -308,134 +278,135 @@ function Jobs() {
             ========================================= */}
 
       {loading && (
-        <div className="card">
+        <div className="jobs-loading">
+          <div className="jobs-loading-icon">⏳</div>
+
           <p>Loading jobs...</p>
         </div>
       )}
 
       {/* =========================================
-                EMPTY STATE
+                NO JOBS
             ========================================= */}
 
       {!loading && jobs.length === 0 && (
-        <div className="empty-state">
-          <h3>No Jobs Found</h3>
+        <div className="jobs-empty-state">
+          <div className="jobs-empty-icon">💼</div>
 
-          <p>Try changing your search criteria.</p>
+          <h2>No Jobs Available</h2>
+
+          <p>There are currently no job postings available.</p>
         </div>
       )}
 
       {/* =========================================
-                JOB CARDS
+                NO FILTER RESULTS
             ========================================= */}
 
-      {!loading && jobs.length > 0 && (
-        <div className="job-grid">
-          {jobs.map((job) => {
-            const isApplied = appliedJobIds.includes(job.id);
+      {!loading && jobs.length > 0 && filteredJobs.length === 0 && (
+        <div className="jobs-empty-state">
+          <div className="jobs-empty-icon">🔍</div>
+
+          <h2>No Matching Jobs</h2>
+
+          <p>Try changing your search or filters.</p>
+
+          <button className="btn btn-secondary" onClick={clearFilters}>
+            Clear Filters
+          </button>
+        </div>
+      )}
+
+      {/* =========================================
+                JOB LIST
+            ========================================= */}
+
+      {!loading && filteredJobs.length > 0 && (
+        <div className="jobs-list">
+          {filteredJobs.map((job) => {
+            const applied = hasApplied(job.id);
 
             const isOpen = job.status?.toUpperCase() === "OPEN";
 
             return (
-              <div className="job-card" key={job.id}>
-                {/* JOB TITLE */}
+              <div className="job-list-card" key={job.id}>
+                {/* LEFT SIDE */}
 
-                <h2>{job.title}</h2>
+                <div className="job-list-main">
+                  <div className="job-list-title-row">
+                    <h2>{job.title}</h2>
 
-                {/* RECRUITER */}
-
-                <div className="job-recruiter">
-                  {job.recruiter?.name || "Company / Recruiter"}
-                </div>
-
-                {/* JOB DETAILS */}
-
-                <div className="job-details">
-                  {/* LOCATION */}
-
-                  <div className="job-detail">
-                    <strong>Location</strong>
-
-                    {job.location || "Not specified"}
+                    <span className={getStatusClass(job.status)}>
+                      {job.status || "UNKNOWN"}
+                    </span>
                   </div>
 
-                  {/* SALARY */}
+                  <p className="job-list-company">
+                    🏢 {job.recruiter?.name || "Company / Recruiter"}
+                  </p>
 
-                  <div className="job-detail">
-                    <strong>Salary</strong>
+                  {/* DETAILS */}
 
-                    {job.salary || "Not specified"}
+                  <div className="job-list-details">
+                    <span>📍 {job.location || "Not specified"}</span>
+
+                    <span>💰 {job.salary || "Not specified"}</span>
+
+                    <span>💼 {job.experience || "Not specified"}</span>
+
+                    <span>🏢 {job.jobType || "Not specified"}</span>
                   </div>
 
-                  {/* EXPERIENCE */}
+                  {/* DESCRIPTION */}
 
-                  <div className="job-detail">
-                    <strong>Experience</strong>
+                  <p className="job-list-description">
+                    {job.description || "No description available."}
+                  </p>
 
-                    {job.experience || "Not specified"}
-                  </div>
-
-                  {/* JOB TYPE */}
-
-                  <div className="job-detail">
-                    <strong>Job Type</strong>
-
-                    {job.jobType || "Not specified"}
-                  </div>
-                </div>
-
-                {/* DESCRIPTION */}
-
-                <div className="job-description-title">Description</div>
-
-                <p className="job-description">
-                  {job.description || "No description available."}
-                </p>
-
-                {/* JOB FOOTER */}
-
-                <div className="job-footer">
                   {/* END DATE */}
 
-                  <div className="job-end-date">
-                    <strong>Apply by:</strong> {job.endDate || "Not specified"}
+                  <div className="job-list-footer">
+                    <span>
+                      ⏳ Apply by:{" "}
+                      <strong>{job.endDate || "Not specified"}</strong>
+                    </span>
                   </div>
-
-                  {/* STATUS */}
-
-                  <span
-                    className={`status ${
-                      isOpen ? "status-open" : "status-closed"
-                    }`}
-                  >
-                    {job.status}
-                  </span>
                 </div>
 
-                {/* ACTION BUTTON */}
+                {/* RIGHT SIDE */}
 
-                <div className="job-actions">
-                  {/* ALREADY APPLIED */}
+                <div className="job-list-actions">
+                  {/* APPLICATION STATUS */}
 
-                  {isApplied ? (
+                  {applied && (
+                    <div className="job-applied-badge">✓ Applied</div>
+                  )}
+
+                  {/* VIEW DETAILS */}
+
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => navigate(`/job/${job.id}`)}
+                  >
+                    View Details
+                  </button>
+
+                  {/* APPLY */}
+
+                  {applied ? (
                     <button className="btn btn-secondary" disabled>
                       Already Applied
                     </button>
-                  ) : /* JOB CLOSED */
-
-                  !isOpen ? (
+                  ) : !isOpen ? (
                     <button className="btn btn-danger" disabled>
                       Job Closed
                     </button>
                   ) : (
-                    /* APPLY */
-
                     <button
                       className="btn btn-success"
-                      onClick={() => handleApply(job.id)}
-                      disabled={applyingJobId === job.id}
+                      onClick={() => handleApply(job)}
                     >
-                      {applyingJobId === job.id ? "Applying..." : "Apply Now"}
+                      Apply Now
                     </button>
                   )}
                 </div>

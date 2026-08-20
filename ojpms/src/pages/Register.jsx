@@ -1,123 +1,184 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function Register() {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("JOB_SEEKER");
 
-    const [user, setUser] = useState({
-        name: "",
-        email: "",
-        password: "",
-        role: "JOB_SEEKER"
-    });
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-    const handleChange = (e) => {
-        setUser({
-            ...user,
-            [e.target.name]: e.target.value
-        });
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const handleSubmit = async (e) => {
+    setMessage("");
+    setLoading(true);
 
-        e.preventDefault();
+    try {
+      const user = {
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      };
 
-        try {
+      await api.post("/users", user);
 
-            const response = await api.post("/users", user);
+      setMessage("Registration successful!");
 
-            console.log(response.data);
+      // Clear form
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("JOB_SEEKER");
 
-            setMessage("Registration successful!");
+      // Redirect to login after registration
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+    } catch (error) {
+      console.error(error);
 
-            setTimeout(() => {
-                navigate("/login");
-            }, 1000);
+      setMessage(
+        error.response?.data?.message ||
+          error.response?.data ||
+          "Registration failed. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        } catch (error) {
+  return (
+    <div className="register-auth-page">
+      <div className="register-auth-container">
+        {/* Logo */}
 
-            console.error(error);
+        <div className="auth-logo">OJPMS</div>
 
-            setMessage(
-                error.response?.data?.message ||
-                "Registration failed"
-            );
-        }
-    };
+        {/* Heading */}
 
-    return (
-        <div>
+        <h1>Create Account</h1>
 
-            <h1>Register</h1>
+        <p className="auth-subtitle">Create your Online Job Portal account</p>
 
-            <form onSubmit={handleSubmit}>
+        {/* Message */}
 
-                <div>
-                    <label>Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={user.name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        {message && (
+          <div
+            className={
+              message === "Registration successful!"
+                ? "success-message"
+                : "error-message"
+            }
+          >
+            {message}
+          </div>
+        )}
 
-                <div>
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={user.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        {/* Registration Form */}
 
-                <div>
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={user.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        <form onSubmit={handleSubmit}>
+          {/* Name */}
 
-                <div>
-                    <label>Role</label>
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
 
-                    <select
-                        name="role"
-                        value={user.role}
-                        onChange={handleChange}
-                    >
-                        <option value="JOB_SEEKER">
-                            Job Seeker
-                        </option>
+            <input
+              className="form-input"
+              type="text"
+              placeholder="Enter your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
 
-                        <option value="RECRUITER">
-                            Recruiter
-                        </option>
-                    </select>
+          {/* Email */}
 
-                </div>
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
 
-                <button type="submit">
-                    Register
-                </button>
+            <input
+              className="form-input"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-            </form>
+          {/* Password */}
 
-            {message && <p>{message}</p>}
+          <div className="form-group">
+            <label className="form-label">Password</label>
 
+            <div className="password-wrapper">
+              <input
+                className="form-input"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          {/* Role */}
+
+          <div className="form-group">
+            <label className="form-label">Register As</label>
+
+            <select
+              className="form-select"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option value="JOB_SEEKER">Job Seeker</option>
+
+              <option value="RECRUITER">Recruiter</option>
+            </select>
+          </div>
+
+          {/* Register Button */}
+
+          <button
+            type="submit"
+            className="btn btn-primary auth-submit"
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
+          </button>
+        </form>
+
+        {/* Login Link */}
+
+        <div className="auth-footer">
+          <span>Already have an account?</span>
+
+          <Link to="/login">Login</Link>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 export default Register;
