@@ -4,7 +4,7 @@ import api from "../services/api";
 
 function EditJob() {
   const navigate = useNavigate();
-  const { jobId } = useParams();
+  const { id } = useParams();
 
   const [job, setJob] = useState({
     title: "",
@@ -19,9 +19,9 @@ function EditJob() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // ==========================================
+  // =========================================
   // LOAD JOB
-  // ==========================================
+  // =========================================
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -33,25 +33,30 @@ function EditJob() {
 
     const user = JSON.parse(storedUser);
 
-    // Only RECRUITER can edit jobs
     if (user.role !== "RECRUITER") {
       navigate("/login");
       return;
     }
 
-    loadJob();
-  }, [navigate, jobId]);
+    if (!id) {
+      setMessage("Invalid job ID");
+      setLoading(false);
+      return;
+    }
 
-  // ==========================================
-  // GET JOB BY ID
-  // ==========================================
+    loadJob();
+  }, [navigate, id]);
+
+  // =========================================
+  // GET JOB
+  // =========================================
 
   const loadJob = async () => {
     try {
       setLoading(true);
       setMessage("");
 
-      const response = await api.get(`/jobs/${jobId}`);
+      const response = await api.get(`/jobs/${id}`);
 
       const existingJob = response.data;
 
@@ -75,9 +80,9 @@ function EditJob() {
     }
   };
 
-  // ==========================================
-  // HANDLE INPUT CHANGE
-  // ==========================================
+  // =========================================
+  // HANDLE INPUT
+  // =========================================
 
   const handleChange = (e) => {
     setJob({
@@ -86,9 +91,9 @@ function EditJob() {
     });
   };
 
-  // ==========================================
+  // =========================================
   // UPDATE JOB
-  // ==========================================
+  // =========================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,13 +101,12 @@ function EditJob() {
     setMessage("");
 
     try {
-      const response = await api.put(`/jobs/${jobId}`, job);
+      const response = await api.put(`/jobs/${id}`, job);
 
       console.log("Updated Job:", response.data);
 
       setMessage("Job updated successfully!");
 
-      // Return to recruiter dashboard
       setTimeout(() => {
         navigate("/recruiter-dashboard");
       }, 1000);
@@ -115,194 +119,205 @@ function EditJob() {
     }
   };
 
-  // ==========================================
+  // =========================================
   // LOADING
-  // ==========================================
+  // =========================================
 
   if (loading) {
     return (
-      <div>
-        <h2>Loading job...</h2>
+      <div className="edit-job-page">
+        <div className="edit-job-loading">
+          <p>Loading job...</p>
+        </div>
       </div>
     );
   }
 
-  // ==========================================
+  // =========================================
   // UI
-  // ==========================================
+  // =========================================
 
   return (
-    <div>
-      <h1>Edit Job</h1>
+    <div className="edit-job-page">
+      <div className="edit-job-card">
+        {/* =====================================
+            TOP HEADER
+        ====================================== */}
 
-      {message && (
-        <p>
-          <strong>{message}</strong>
-        </p>
-      )}
+        <div className="edit-job-top">
+          <div className="edit-job-heading">
+            <h1>Edit Job</h1>
 
-      <form onSubmit={handleSubmit}>
-        {/* =================================
-                    JOB TITLE
-                ================================= */}
+            <p>Update the job information below.</p>
+          </div>
 
-        <div>
-          <label>Job Title</label>
+          {/* GO TO DASHBOARD */}
 
-          <br />
-
-          <input
-            type="text"
-            name="title"
-            value={job.title}
-            onChange={handleChange}
-            placeholder="Enter job title"
-            required
-          />
-        </div>
-
-        <br />
-
-        {/* =================================
-                    DESCRIPTION
-                ================================= */}
-
-        <div>
-          <label>Description</label>
-
-          <br />
-
-          <textarea
-            name="description"
-            value={job.description}
-            onChange={handleChange}
-            placeholder="Enter job description"
-            rows="5"
-            required
-          />
-        </div>
-
-        <br />
-
-        {/* =================================
-                    LOCATION
-                ================================= */}
-
-        <div>
-          <label>Location</label>
-
-          <br />
-
-          <input
-            type="text"
-            name="location"
-            value={job.location}
-            onChange={handleChange}
-            placeholder="Enter location"
-          />
-        </div>
-
-        <br />
-
-        {/* =================================
-                    SALARY
-                ================================= */}
-
-        <div>
-          <label>Salary</label>
-
-          <br />
-
-          <input
-            type="text"
-            name="salary"
-            value={job.salary}
-            onChange={handleChange}
-            placeholder="Example: 6 LPA"
-          />
-        </div>
-
-        <br />
-
-        {/* =================================
-                    EXPERIENCE
-                ================================= */}
-
-        <div>
-          <label>Experience</label>
-
-          <br />
-
-          <input
-            type="text"
-            name="experience"
-            value={job.experience}
-            onChange={handleChange}
-            placeholder="Example: 0-2 Years"
-          />
-        </div>
-
-        <br />
-
-        {/* =================================
-                    JOB TYPE
-                ================================= */}
-
-        <div>
-          <label>Job Type</label>
-
-          <br />
-
-          <select
-            name="jobType"
-            value={job.jobType}
-            onChange={handleChange}
-            required
+          <button
+            type="button"
+            className="edit-job-dashboard"
+            onClick={() => navigate("/recruiter-dashboard")}
           >
-            <option value="">Select Job Type</option>
-
-            <option value="FULL_TIME">Full Time</option>
-
-            <option value="PART_TIME">Part Time</option>
-
-            <option value="INTERNSHIP">Internship</option>
-
-            <option value="CONTRACT">Contract</option>
-          </select>
+            Go to Dashboard
+          </button>
         </div>
 
-        <br />
+        {/* =====================================
+            MESSAGE
+        ====================================== */}
 
-        {/* =================================
-                    END DATE
-                ================================= */}
+        {message && (
+          <div
+            className={`edit-job-message ${
+              message.toLowerCase().includes("success")
+                ? "edit-job-success"
+                : "edit-job-error"
+            }`}
+          >
+            {message}
+          </div>
+        )}
 
-        <div>
-          <label>End Date</label>
+        {/* =====================================
+            FORM
+        ====================================== */}
 
-          <br />
+        <form className="edit-job-form" onSubmit={handleSubmit}>
+          {/* JOB TITLE */}
 
-          <input
-            type="date"
-            name="endDate"
-            value={job.endDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div className="edit-job-field edit-job-full">
+            <label htmlFor="title">Job Title</label>
 
-        <br />
+            <input
+              id="title"
+              type="text"
+              name="title"
+              value={job.title}
+              onChange={handleChange}
+              placeholder="Enter job title"
+              required
+            />
+          </div>
 
-        {/* =================================
-                    BUTTONS
-                ================================= */}
+          {/* LOCATION */}
 
-        <button type="submit">Update Job</button>
+          <div className="edit-job-field">
+            <label htmlFor="location">Location</label>
 
-        <button type="button" onClick={() => navigate("/recruiter-dashboard")}>
-          Cancel
-        </button>
-      </form>
+            <input
+              id="location"
+              type="text"
+              name="location"
+              value={job.location}
+              onChange={handleChange}
+              placeholder="Enter location"
+            />
+          </div>
+
+          {/* SALARY */}
+
+          <div className="edit-job-field">
+            <label htmlFor="salary">Salary</label>
+
+            <input
+              id="salary"
+              type="text"
+              name="salary"
+              value={job.salary}
+              onChange={handleChange}
+              placeholder="Example: 6 LPA"
+            />
+          </div>
+
+          {/* EXPERIENCE */}
+
+          <div className="edit-job-field">
+            <label htmlFor="experience">Experience</label>
+
+            <input
+              id="experience"
+              type="text"
+              name="experience"
+              value={job.experience}
+              onChange={handleChange}
+              placeholder="Example: 0-2 Years"
+            />
+          </div>
+
+          {/* JOB TYPE */}
+
+          <div className="edit-job-field">
+            <label htmlFor="jobType">Job Type</label>
+
+            <select
+              id="jobType"
+              name="jobType"
+              value={job.jobType}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Job Type</option>
+
+              <option value="FULL_TIME">Full Time</option>
+
+              <option value="PART_TIME">Part Time</option>
+
+              <option value="INTERNSHIP">Internship</option>
+
+              <option value="CONTRACT">Contract</option>
+            </select>
+          </div>
+
+          {/* END DATE */}
+
+          <div className="edit-job-field">
+            <label htmlFor="endDate">End Date</label>
+
+            <input
+              id="endDate"
+              type="date"
+              name="endDate"
+              value={job.endDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* DESCRIPTION */}
+
+          <div className="edit-job-field edit-job-full">
+            <label htmlFor="description">Description</label>
+
+            <textarea
+              id="description"
+              name="description"
+              value={job.description}
+              onChange={handleChange}
+              placeholder="Enter job description"
+              rows="5"
+              required
+            />
+          </div>
+
+          {/* =====================================
+              BOTTOM BUTTONS
+          ====================================== */}
+
+          <div className="edit-job-actions">
+            <button
+              type="button"
+              className="edit-job-cancel"
+              onClick={() => navigate("/recruiter-dashboard")}
+            >
+              Cancel
+            </button>
+
+            <button type="submit" className="edit-job-update">
+              Update Job
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

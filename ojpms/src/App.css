@@ -1874,12 +1874,6 @@ button {
 
 /* APPLIED */
 
-.status-applied {
-  background-color: #dbeafe;
-
-  color: #1d4ed8;
-}
-
 /* SHORTLISTED */
 
 .status-shortlisted {
@@ -3794,12 +3788,6 @@ button {
   gap: 18px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
 .form-group label {
   font-weight: 600;
   color: #374151;
@@ -4435,19 +4423,11 @@ button {
   resize: vertical;
   line-height: 1.5;
 }
-.create-job-field input::placeholder,
-.create-job-field textarea::placeholder {
-  color: #9ca3af;
-}
+
 /* =========================================================
    INPUT FOCUS
    ========================================================= */
-.create-job-field input:focus,
-.create-job-field select:focus,
-.create-job-field textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
+
 .create-job-field select,
 .create-job-field input[type="date"] {
   cursor: pointer;
@@ -4488,10 +4468,7 @@ button {
   background: #f9fafb;
   border-color: #9ca3af;
 }
-.create-job-cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+
 /* =========================================================
    CREATE JOB
    ========================================================= */
@@ -4610,10 +4587,6 @@ button {
   margin-bottom: 22px;
 }
 
-.create-job-header-content {
-  min-width: 0;
-}
-
 .create-job-header h1 {
   margin: 0;
 
@@ -4684,18 +4657,6 @@ button {
   font-weight: 500;
 }
 
-.create-job-success {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #047857;
-}
-
-.create-job-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-}
-
 /* =========================================================
    FORM CARD
    ========================================================= */
@@ -4725,10 +4686,6 @@ button {
 /* =========================================================
    SECTION
    ========================================================= */
-
-.create-job-section {
-  width: 100%;
-}
 
 .create-job-description-section {
   margin-top: 28px;
@@ -4833,10 +4790,6 @@ button {
   font-weight: 600;
 }
 
-.create-job-field label span {
-  color: #ef4444;
-}
-
 /* =========================================================
    INPUT / SELECT / TEXTAREA
    ========================================================= */
@@ -4887,11 +4840,6 @@ button {
 
 /* PLACEHOLDER */
 
-.create-job-field input::placeholder,
-.create-job-field textarea::placeholder {
-  color: #9ca3af;
-}
-
 /* FOCUS */
 
 .create-job-field input:focus,
@@ -4903,11 +4851,6 @@ button {
 }
 
 /* DATE / SELECT */
-
-.create-job-field select,
-.create-job-field input[type="date"] {
-  cursor: pointer;
-}
 
 /* =========================================================
    ACTION AREA
@@ -4954,16 +4897,6 @@ button {
     border-color 0.2s ease;
 }
 
-.create-job-cancel-btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.create-job-cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 /* =========================================================
    CREATE BUTTON
    ========================================================= */
@@ -4997,11 +4930,6 @@ button {
   background: #1d4ed8;
 
   box-shadow: 0 4px 9px rgba(37, 99, 235, 0.22);
-}
-
-.create-job-submit-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
 }
 
 /* =========================================================
@@ -5103,5 +5031,536 @@ button {
 
   .create-job-section-header h2 {
     font-size: 17px;
+  }
+}
+
+/* =========================================================
+   EDIT JOB PAGE
+   ========================================================= */
+
+/* Main page */
+
+.edit-job-page {
+  width: 100%;
+  min-height: calc(100vh - 70px);
+
+  padding: 30px 24px 50px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.edit-job-card {
+  width: 100%;
+  max-width: 820px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  padding: 28px 32px 30px;
+
+  box-sizing: border-box;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================================================
+   TOP HEADER
+   ========================================================= */
+
+.edit-job-top {
+  width: 100%;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 25px;
+
+  margin-bottom: 26px;
+}
+
+/* Heading */
+
+.edit-job-heading {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.edit-job-heading h1 {
+  margin: 0 0 6px;
+
+  color: #111827;
+
+  font-size: 27px;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.edit-job-heading p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   GO TO DASHBOARD
+   ========================================================= */
+
+.edit-job-dashboard {
+  flex-shrink: 0;
+
+  height: 40px;
+
+  padding: 0 17px;
+
+  border-radius: 7px;
+
+  border: 1px solid #dbeafe;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.edit-job-dashboard:hover {
+  background: #dbeafe;
+
+  border-color: #bfdbfe;
+
+  color: #1e40af;
+}
+
+.edit-job-dashboard:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.edit-job-message {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin-bottom: 20px;
+
+  padding: 11px 14px;
+
+  border-radius: 7px;
+
+  font-size: 14px;
+
+  font-weight: 500;
+}
+
+/* Success */
+
+.edit-job-success {
+  background: #dcfce7;
+
+  border: 1px solid #bbf7d0;
+
+  color: #166534;
+}
+
+/* Error */
+
+.edit-job-error {
+  background: #fee2e2;
+
+  border: 1px solid #fecaca;
+
+  color: #991b1b;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.edit-job-form {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  column-gap: 20px;
+
+  row-gap: 18px;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   FIELD
+   ========================================================= */
+
+.edit-job-field {
+  width: 100%;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+/* Full width */
+
+.edit-job-full {
+  grid-column: 1 / -1;
+}
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.edit-job-field label {
+  margin: 0 0 7px;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  line-height: 1.3;
+}
+
+/* =========================================================
+   INPUT / SELECT / TEXTAREA
+   ========================================================= */
+
+.edit-job-field input,
+.edit-job-field select,
+.edit-job-field textarea {
+  width: 100%;
+
+  max-width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.edit-job-field input {
+  height: 43px;
+
+  padding: 0 12px;
+}
+
+/* =========================================================
+   SELECT
+   ========================================================= */
+
+.edit-job-field select {
+  height: 43px;
+
+  padding: 0 12px;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   TEXTAREA
+   ========================================================= */
+
+.edit-job-field textarea {
+  min-height: 120px;
+
+  padding: 11px 12px;
+
+  resize: vertical;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   PLACEHOLDER
+   ========================================================= */
+
+.edit-job-field input::placeholder,
+.edit-job-field textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+.edit-job-field input:focus,
+.edit-job-field select:focus,
+.edit-job-field textarea:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   BUTTON AREA
+   ========================================================= */
+
+.edit-job-actions {
+  grid-column: 1 / -1;
+
+  width: 100%;
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 5px;
+
+  padding-top: 22px;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   BOTTOM BUTTON COMMON
+   ========================================================= */
+
+.edit-job-actions button {
+  height: 42px;
+
+  min-width: 110px;
+
+  padding: 0 20px;
+
+  border-radius: 7px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* =========================================================
+   CANCEL
+   ========================================================= */
+
+.edit-job-cancel {
+  background: #ffffff;
+
+  color: #4b5563;
+
+  border: 1px solid #d1d5db;
+}
+
+.edit-job-cancel:hover {
+  background: #f9fafb;
+
+  border-color: #9ca3af;
+
+  color: #374151;
+}
+
+/* =========================================================
+   UPDATE JOB
+   ========================================================= */
+
+.edit-job-update {
+  background: #2563eb;
+
+  color: #ffffff;
+
+  border: 1px solid #2563eb;
+}
+
+.edit-job-update:hover {
+  background: #1d4ed8;
+
+  border-color: #1d4ed8;
+}
+
+/* =========================================================
+   BUTTON ACTIVE
+   ========================================================= */
+
+.edit-job-actions button:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.edit-job-loading {
+  width: 100%;
+
+  max-width: 820px;
+
+  padding: 55px 30px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  text-align: center;
+
+  color: #6b7280;
+
+  font-size: 15px;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .edit-job-page {
+    padding: 24px 18px 40px;
+  }
+
+  .edit-job-card {
+    padding: 24px;
+  }
+
+  .edit-job-top {
+    gap: 18px;
+  }
+
+  .edit-job-form {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-job-full {
+    grid-column: auto;
+  }
+
+  .edit-job-actions {
+    grid-column: auto;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 560px) {
+  .edit-job-page {
+    padding: 18px 12px 30px;
+  }
+
+  .edit-job-card {
+    padding: 20px 16px 22px;
+
+    border-radius: 10px;
+  }
+
+  .edit-job-top {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    margin-bottom: 22px;
+  }
+
+  .edit-job-heading h1 {
+    font-size: 24px;
+  }
+
+  .edit-job-dashboard {
+    width: 100%;
+
+    height: 42px;
+  }
+
+  .edit-job-form {
+    row-gap: 15px;
+  }
+
+  .edit-job-actions {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+
+    gap: 10px;
+  }
+
+  .edit-job-actions button {
+    width: 100%;
+
+    min-width: 0;
   }
 }
