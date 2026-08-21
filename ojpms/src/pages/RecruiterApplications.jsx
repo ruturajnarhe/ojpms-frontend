@@ -10,10 +10,8 @@ function RecruiterApplications() {
   const [job, setJob] = useState(null);
 
   const [loading, setLoading] = useState(true);
-
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
   const [updatingId, setUpdatingId] = useState(null);
 
   // =========================================
@@ -53,15 +51,11 @@ function RecruiterApplications() {
       setApplications(response.data);
 
       // Get job information from application
-
       if (response.data.length > 0) {
         setJob(response.data[0].job);
       } else {
-        // If no applications exist,
-        // get job separately
-
+        // If no applications exist, get job separately
         const jobResponse = await api.get(`/jobs/${jobId}`);
-
         setJob(jobResponse.data);
       }
     } catch (error) {
@@ -82,7 +76,6 @@ function RecruiterApplications() {
   const updateStatus = async (applicationId, status) => {
     try {
       setUpdatingId(applicationId);
-
       setMessage("");
       setError("");
 
@@ -97,7 +90,6 @@ function RecruiterApplications() {
       );
 
       // Update application in UI
-
       setApplications((previousApplications) =>
         previousApplications.map((application) =>
           application.id === applicationId ? response.data : application,
@@ -140,67 +132,73 @@ function RecruiterApplications() {
   return (
     <div className="page-container">
       {/* =========================================
-                BACK BUTTON
-            ========================================= */}
+          BACK BUTTON
+      ========================================= */}
 
       <button
-        className="btn btn-secondary"
+        className="btn btn-primary recruiter-back-button"
         onClick={() => navigate("/recruiter-dashboard")}
       >
         ← Back to Dashboard
       </button>
 
       {/* =========================================
-                JOB INFORMATION
-            ========================================= */}
+          JOB INFORMATION
+      ========================================= */}
 
-      <div className="card">
+      <div className="card recruiter-job-info-card">
         <h1 className="page-title">{job?.title || "Job Applications"}</h1>
 
         {job && (
-          <>
-            <p>
-              <strong>Location:</strong> {job.location || "Not specified"}
-            </p>
+          <div className="recruiter-job-info-grid">
+            <div className="recruiter-job-info-item">
+              <strong>Location</strong>
+              <span>{job.location || "Not specified"}</span>
+            </div>
 
-            <p>
-              <strong>Job Type:</strong> {job.jobType || "Not specified"}
-            </p>
+            <div className="recruiter-job-info-item">
+              <strong>Job Type</strong>
+              <span>{job.jobType || "Not specified"}</span>
+            </div>
 
-            <p>
-              <strong>Salary:</strong> {job.salary || "Not specified"}
-            </p>
+            <div className="recruiter-job-info-item">
+              <strong>Salary</strong>
+              <span>{job.salary || "Not specified"}</span>
+            </div>
 
-            <p>
-              <strong>Experience:</strong> {job.experience || "Not specified"}
-            </p>
+            <div className="recruiter-job-info-item">
+              <strong>Experience</strong>
+              <span>{job.experience || "Not specified"}</span>
+            </div>
 
-            <p>
-              <strong>Job Status:</strong> {job.status || "Not specified"}
-            </p>
+            <div className="recruiter-job-info-item">
+              <strong>Job Status</strong>
+              <span>{job.status || "Not specified"}</span>
+            </div>
 
-            <p>
-              <strong>End Date:</strong> {job.endDate || "Not specified"}
-            </p>
-          </>
+            <div className="recruiter-job-info-item">
+              <strong>End Date</strong>
+              <span>{job.endDate || "Not specified"}</span>
+            </div>
+          </div>
         )}
       </div>
 
       {/* =========================================
-                SUCCESS MESSAGE
-            ========================================= */}
+          SUCCESS MESSAGE
+      ========================================= */}
 
       {message && <div className="success-message">{message}</div>}
 
       {/* =========================================
-                ERROR MESSAGE
-            ========================================= */}
+          ERROR MESSAGE
+      ========================================= */}
 
       {error && <div className="error-message">{error}</div>}
 
       {/* =========================================
-                LOADING
-            ========================================= */}
+          LOADING
+      ========================================= */}
 
       {loading && (
         <div className="card">
@@ -209,8 +207,8 @@ function RecruiterApplications() {
       )}
 
       {/* =========================================
-                NO APPLICATIONS
-            ========================================= */}
+          NO APPLICATIONS
+      ========================================= */}
 
       {!loading && applications.length === 0 && (
         <div className="empty-state">
@@ -221,8 +219,8 @@ function RecruiterApplications() {
       )}
 
       {/* =========================================
-                APPLICATION LIST
-            ========================================= */}
+          APPLICATION LIST
+      ========================================= */}
 
       {!loading && applications.length > 0 && (
         <>
@@ -232,50 +230,38 @@ function RecruiterApplications() {
 
           <div className="job-grid">
             {applications.map((application) => (
-              <div className="job-card" key={application.id}>
-                {/* =================================
-                                            APPLICANT NAME
-                                        ================================= */}
-
+              <div
+                className="job-card recruiter-application-card"
+                key={application.id}
+              >
+                {/* Applicant Name */}
                 <h2>{application.applicant?.name || "Unknown Applicant"}</h2>
 
-                {/* =================================
-                                            EMAIL
-                                        ================================= */}
-
+                {/* Email */}
                 <div className="job-recruiter">
                   {application.applicant?.email || "Email not available"}
                 </div>
 
-                {/* =================================
-                                            APPLICATION DETAILS
-                                        ================================= */}
-
+                {/* Application Details */}
                 <div className="job-details">
-                  {/* APPLICATION ID */}
-
+                  {/* Application ID */}
                   <div className="job-detail">
                     <strong>Application ID</strong>#{application.id}
                   </div>
 
-                  {/* APPLIED DATE */}
-
+                  {/* Applied Date */}
                   <div className="job-detail">
                     <strong>Applied Date</strong>
-
                     {application.appliedDate || "Not specified"}
                   </div>
 
-                  {/* JOB */}
-
+                  {/* Job */}
                   <div className="job-detail">
                     <strong>Job</strong>
-
                     {application.job?.title || job?.title || "Not specified"}
                   </div>
 
-                  {/* STATUS */}
-
+                  {/* Status */}
                   <div className="job-detail">
                     <strong>Status</strong>
 
@@ -285,18 +271,9 @@ function RecruiterApplications() {
                   </div>
                 </div>
 
-                {/* =================================
-                                            ACTION BUTTONS
-                                        ================================= */}
-
-                <div
-                  className="job-actions"
-                  style={{
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {/* SHORTLIST */}
-
+                {/* Action Buttons */}
+                <div className="job-actions">
+                  {/* Shortlist */}
                   <button
                     className="btn btn-secondary"
                     disabled={
@@ -312,8 +289,7 @@ function RecruiterApplications() {
                       : "Shortlist"}
                   </button>
 
-                  {/* SELECT */}
-
+                  {/* Select */}
                   <button
                     className="btn btn-success"
                     disabled={
@@ -326,8 +302,7 @@ function RecruiterApplications() {
                     {updatingId === application.id ? "Updating..." : "Select"}
                   </button>
 
-                  {/* REJECT */}
-
+                  {/* Reject */}
                   <button
                     className="btn btn-danger"
                     disabled={
